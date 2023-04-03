@@ -1,14 +1,35 @@
-import { Stack, Typography } from '@mui/material'
-import Camera from './Camera'
+import { Unstable_Grid2 as Grid } from '@mui/material'
+import { useState } from 'react'
+import CameraPanel from './camera/CameraPanel'
+import InfoPanel from './info/InfoPanel'
+import SessionCreatorPanel from './session_creator/SessionCreatorPanel'
 
 function App(): JSX.Element {
+  const [isSessionStarted, setIsSessionStarted] = useState<boolean>(false)
+
   return (
-    <Stack height="100vh" color={'text.primary'} bgcolor={'background.default'} alignItems="center">
-      <Typography variant="h2" mt={2}>
-        Joga helper
-      </Typography>
-      <Camera />
-    </Stack>
+    <Grid
+      height="100vh"
+      width="100vw"
+      container
+      color={'text.primary'}
+      bgcolor={'background.default'}
+    >
+      {isSessionStarted ? (
+        <>
+          <Grid xs={8}>
+            <CameraPanel />
+          </Grid>
+          <Grid xs={4}>
+            <InfoPanel />
+          </Grid>
+        </>
+      ) : (
+        <Grid xs={12}>
+          <SessionCreatorPanel />
+        </Grid>
+      )}
+    </Grid>
   )
 }
 
