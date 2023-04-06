@@ -13,6 +13,11 @@ function App(): JSX.Element {
     setIsSessionStarted(true)
   }
 
+  const restartSession = (): void => {
+    setIsSessionStarted(false)
+    setSelectedCamera('')
+  }
+
   return (
     <Grid
       height="100vh"
@@ -27,7 +32,7 @@ function App(): JSX.Element {
             <CameraPanel cameraId={selectedCamera} />
           </Grid>
           <Grid xs={3}>
-            <InfoPanel />
+            <InfoPanel restartSession={restartSession} />
           </Grid>
         </>
       ) : (
