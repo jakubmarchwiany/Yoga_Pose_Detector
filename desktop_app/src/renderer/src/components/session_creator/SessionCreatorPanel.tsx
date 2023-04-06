@@ -12,7 +12,11 @@ import {
 import { useEffect, useState } from 'react'
 import { CameraParameters } from './types'
 
-function SessionCreatorPanel(): JSX.Element {
+type Params = {
+  startSession: (cameraId: string) => void
+}
+
+function SessionCreatorPanel({ startSession }: Params): JSX.Element {
   const [availableCameras, setAvailableCameras] = useState<CameraParameters[]>([])
   const [selectedCamera, setSelectedCamera] = useState<string>('')
 
@@ -39,10 +43,6 @@ function SessionCreatorPanel(): JSX.Element {
 
   const handleChange = (event: SelectChangeEvent): void => {
     setSelectedCamera(event.target.value as string)
-  }
-
-  const startSession = (): void => {
-    console.log(selectedCamera)
   }
 
   return (
@@ -76,7 +76,12 @@ function SessionCreatorPanel(): JSX.Element {
                 )
               })}
             </Select>
-            <Button variant="outlined" onClick={startSession} disabled={selectedCamera === ''}>
+            <Button
+              variant="outlined"
+              onClick={(): void => startSession(selectedCamera)}
+              disabled={selectedCamera === ''}
+              autoFocus
+            >
               Rozpocznij sesję Jogi
             </Button>
           </FormControl>

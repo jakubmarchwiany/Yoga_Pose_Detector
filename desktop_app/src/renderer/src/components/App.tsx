@@ -6,6 +6,12 @@ import SessionCreatorPanel from './session_creator/SessionCreatorPanel'
 
 function App(): JSX.Element {
   const [isSessionStarted, setIsSessionStarted] = useState<boolean>(false)
+  const [selectedCamera, setSelectedCamera] = useState<string>('')
+
+  const startSession = (cameraId: string): void => {
+    setSelectedCamera(cameraId)
+    setIsSessionStarted(true)
+  }
 
   return (
     <Grid
@@ -17,16 +23,16 @@ function App(): JSX.Element {
     >
       {isSessionStarted ? (
         <>
-          <Grid xs={8}>
-            <CameraPanel />
+          <Grid xs={9}>
+            <CameraPanel cameraId={selectedCamera} />
           </Grid>
-          <Grid xs={4}>
+          <Grid xs={3}>
             <InfoPanel />
           </Grid>
         </>
       ) : (
         <Grid xs={12}>
-          <SessionCreatorPanel />
+          <SessionCreatorPanel startSession={startSession} />
         </Grid>
       )}
     </Grid>

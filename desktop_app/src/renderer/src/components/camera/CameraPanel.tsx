@@ -1,86 +1,33 @@
-import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
+import { Stack } from '@mui/material'
 import CardMedia from '@mui/material/CardMedia'
-import FormControl from '@mui/material/FormControl'
-import InputLabel from '@mui/material/InputLabel'
-import MenuItem from '@mui/material/MenuItem'
-import Select, { SelectChangeEvent } from '@mui/material/Select'
-import Typography from '@mui/material/Typography'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import toast from 'react-hot-toast'
 
-type CameraParameters = { label: string; deviceId: string }
+type Params = {
+  cameraId: string
+}
 
-function Camera() {
-  const [selectedCamera, setSelectedCamera] = useState<string>('')
-  const [availableCameras, setAvailableCameras] = useState<CameraParameters[]>([])
-
+function Camera({ cameraId }: Params): JSX.Element {
   useEffect(() => {
-    getAvailableCameras()
+    startCamera()
   }, [])
 
-  const getAvailableCameras = async () => {
-    navigator.mediaDevices
-      .enumerateDevices()
-      .then((devices) => {
-        const availableCameras: CameraParameters[] = []
-
-        devices.map((device) => {
-          if (device.kind === 'videoinput')
-            availableCameras.push({ label: device.label, deviceId: device.deviceId })
-        })
-        setAvailableCameras(availableCameras)
-      })
-      .catch((err) => {
-        console.error(`${err.name}: ${err.message}`)
-      })
-  }
-
-  const handleChange = (event: SelectChangeEvent) => {
-    setSelectedCamera(event.target.value as string)
-  }
-
-  const startCamera = async () => {
+  const startCamera = async (): Promise<void> => {
     const stream = await navigator.mediaDevices.getUserMedia({
-      video: { deviceId: { exact: selectedCamera }, frameRate: { ideal: 60 } }
+      video: {
+        deviceId: { exact: cameraId },
+        frameRate: { ideal: 60 }
+      }
     })
-    console.log(stream)
-    const video = document.querySelector('#video')
+    const video: HTMLVideoElement = document.querySelector('#camera')!
     video!.srcObject = stream
     toast('Camera started', { icon: '📷' })
   }
 
   return (
-    <Box mt={5}>
-      {availableCameras.length === 0 ? (
-        <Typography variant="h4">No cameras found :(</Typography>
-      ) : (
-        <FormControl sx={{ minWidth: 300 }}>
-          <InputLabel id="choose-camera">Choose camera</InputLabel>
-          <Select
-            fullWidth
-            labelId="choose-camera"
-            label="Choose camera"
-            value={selectedCamera}
-            onChange={handleChange}
-          >
-            {availableCameras.map((camera) => {
-              return (
-                <MenuItem key={camera.deviceId} value={camera.deviceId}>
-                  {camera.label}
-                </MenuItem>
-              )
-            })}
-          </Select>
-          <Button variant="outlined" onClick={startCamera} disabled={selectedCamera === ''}>
-            Start camera
-          </Button>
-
-          <CardMedia id="video" component="video" title="title" autoPlay sx={{ borderRadius: 5 }} />
-        </FormControl>
-      )}
-    </Box>
+    <Stack justifyContent="center" sx={{ height: '100vh' }}>
+      <CardMedia id="camera" component="video" autoPlay sx={{ maxHeight: '100vh' }} />
+    </Stack>
   )
 }
-
 export default Camera
