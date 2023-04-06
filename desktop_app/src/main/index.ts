@@ -8,7 +8,8 @@ function createWindow(width: number, height: number): void {
   const mainWindow = new BrowserWindow({
     width: width,
     height: height,
-    show: false,
+    minHeight: 400,
+    minWidth: 800,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
@@ -28,7 +29,7 @@ function createWindow(width: number, height: number): void {
   })
 
   mainWindow.setAspectRatio(16 / 9)
-
+  // mainWindow.setMinimumSize(600, 0)
   // HMR for renderer base on electron-vite cli.
   // Load the remote URL for development or the local html file for production.
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
