@@ -10,9 +10,13 @@ type Params = {
 function Camera({ cameraId }: Params): JSX.Element {
   useEffect(() => {
     startCamera()
-    setInterval(() => {
+    const captureImage = setInterval(() => {
       takepicture()
     }, 1000)
+
+    return () => {
+      clearInterval(captureImage)
+    }
   }, [])
 
   const startCamera = async (): Promise<void> => {
@@ -20,8 +24,9 @@ function Camera({ cameraId }: Params): JSX.Element {
       video: {
         deviceId: { exact: cameraId },
         frameRate: { ideal: 60 },
-        width: { ideal: 4096 },
-        height: { ideal: 2160 }
+        width: { ideal: 1000 },
+        height: { ideal: 1000 }
+        // aspectRatio: 1 / 1
       }
     })
     const video: HTMLVideoElement = document.querySelector('#camera')!
@@ -41,11 +46,12 @@ function Camera({ cameraId }: Params): JSX.Element {
     canvas.height = height
     context.drawImage(video, 0, 0, width, height)
     const captureImage = canvas.toDataURL('image/png')
+    console.log(captureImage.length)
   }
 
   return (
     <Stack justifyContent="center" sx={{ height: '100vh' }}>
-      <CardMedia id="camera" component="video" sx={{ maxHeight: '100%' }} />
+      <CardMedia id="camera" component="video" sx={{ height: '1000px' }} />
       <canvas id="canvas" style={{ display: 'none' }}></canvas>
     </Stack>
   )

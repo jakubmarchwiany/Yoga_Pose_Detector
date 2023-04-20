@@ -29,12 +29,15 @@ function SessionCreatorPanel({ startSession }: Params): JSX.Element {
       .enumerateDevices()
       .then((devices) => {
         const availableCameras: CameraParameters[] = []
+        console.log(devices)
         devices.map((device) => {
           if (device.kind === 'videoinput')
             availableCameras.push({ label: device.label, deviceId: device.deviceId })
         })
+        console.log(availableCameras)
         setAvailableCameras(availableCameras)
-        setSelectedCamera(availableCameras[0].deviceId)
+        // console.log(availableCameras[0])
+        if (availableCameras.length > 0) setSelectedCamera(availableCameras[0].deviceId)
       })
       .catch((err) => {
         console.error(`${err.name}: ${err.message}`)
