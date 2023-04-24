@@ -20,9 +20,11 @@ function App(): JSX.Element {
 
   return (
     <Grid
+      container
+      // flex={1}
+      overflow={'auto'}
       height="100vh"
       width="100vw"
-      container
       color={'text.primary'}
       bgcolor={'background.default'}
     >

@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Container,
   FormControl,
   InputLabel,
   MenuItem,
@@ -11,6 +12,7 @@ import {
 } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { CameraParameters } from './types'
+import ModeSelector from './ModeSelector'
 
 type Params = {
   startSession: (cameraId: string) => void
@@ -29,12 +31,12 @@ function SessionCreatorPanel({ startSession }: Params): JSX.Element {
       .enumerateDevices()
       .then((devices) => {
         const availableCameras: CameraParameters[] = []
-        console.log(devices)
+        // console.log(devices)
         devices.map((device) => {
           if (device.kind === 'videoinput')
             availableCameras.push({ label: device.label, deviceId: device.deviceId })
         })
-        console.log(availableCameras)
+        // console.log(availableCameras)
         setAvailableCameras(availableCameras)
         // console.log(availableCameras[0])
         if (availableCameras.length > 0) setSelectedCamera(availableCameras[0].deviceId)
@@ -49,11 +51,18 @@ function SessionCreatorPanel({ startSession }: Params): JSX.Element {
   }
 
   return (
-    <Stack alignItems="center" mt={3}>
-      <Typography variant="h2" mt={2}>
-        Rozpocznij sesję
-      </Typography>
-      <Box mt={5}>
+    <Container
+      component="main"
+      sx={{
+        px: { xs: 0, sm: 10, md: 5, lg: 30, xl: 40 },
+        py: { xs: 0, sm: 1, md: 2, lg: 3, xl: 5 }
+      }}
+    >
+      <Stack alignItems="center">
+        <Typography variant="h2" mt={2}>
+          Rozpocznij sesję
+        </Typography>
+
         {availableCameras.length == 0 ? (
           <>
             <Typography variant="h4">Nie wykryto kamery</Typography>
@@ -62,35 +71,38 @@ function SessionCreatorPanel({ startSession }: Params): JSX.Element {
             </Button>
           </>
         ) : (
-          <FormControl sx={{ minWidth: 300 }}>
-            <InputLabel id="choose-camera">Wybierz kamerę</InputLabel>
-            <Select
-              fullWidth
-              labelId="choose-camera"
-              label="Choose camera"
-              value={selectedCamera}
-              onChange={handleChange}
-            >
-              {availableCameras.map((camera) => {
-                return (
-                  <MenuItem key={camera.deviceId} value={camera.deviceId}>
-                    {camera.label}
-                  </MenuItem>
-                )
-              })}
-            </Select>
-            <Button
-              variant="outlined"
-              onClick={(): void => startSession(selectedCamera)}
-              disabled={selectedCamera === ''}
-              autoFocus
-            >
-              Rozpocznij sesję Jogi
-            </Button>
-          </FormControl>
+          <>
+            <ModeSelector />
+            <FormControl sx={{ mt: 3 }}>
+              <InputLabel id="choose-camera">Wybierz kamerę</InputLabel>
+              <Select
+                fullWidth
+                labelId="choose-camera"
+                label="Choose camera"
+                value={selectedCamera}
+                onChange={handleChange}
+              >
+                {availableCameras.map((camera) => {
+                  return (
+                    <MenuItem key={camera.deviceId} value={camera.deviceId}>
+                      {camera.label}
+                    </MenuItem>
+                  )
+                })}
+              </Select>
+              <Button
+                variant="outlined"
+                onClick={(): void => startSession(selectedCamera)}
+                disabled={selectedCamera === ''}
+                autoFocus
+              >
+                Rozpocznij sesję Jogi
+              </Button>
+            </FormControl>
+          </>
         )}
-      </Box>
-    </Stack>
+      </Stack>
+    </Container>
   )
 }
 
