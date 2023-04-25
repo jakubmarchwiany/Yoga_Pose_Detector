@@ -7,7 +7,7 @@ import App from './components/App'
 import { Toaster } from 'react-hot-toast'
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  <React.StrictMode>
+  <>
     <ThemeProvider theme={theme}>
       <App />
     </ThemeProvider>
@@ -23,5 +23,5 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
         }
       }}
     />
-  </React.StrictMode>
+  </>
 )

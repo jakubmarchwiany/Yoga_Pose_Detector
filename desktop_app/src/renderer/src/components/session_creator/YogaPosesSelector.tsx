@@ -7,15 +7,11 @@ import {
   Stack,
   Typography
 } from '@mui/material'
-import React from 'react'
-import { Poses } from './types'
 import Grid from '@mui/material/Unstable_Grid2/Grid2'
+import React from 'react'
+import { AVAILABLE_POSES } from './types'
 
-type Props = {
-  availablePoses: Poses[]
-}
-
-function YogaPosesSelector({ availablePoses }: Props): JSX.Element {
+function YogaPosesSelector(): JSX.Element {
   const [selectedPoses, setSelectedPoses] = React.useState<[[string, number]]>([['', 0]])
 
   const handleChange = (event: SelectChangeEvent): void => {
@@ -50,7 +46,7 @@ function YogaPosesSelector({ availablePoses }: Props): JSX.Element {
         </MenuItem>
       )
 
-    availablePoses.forEach((p) => {
+    AVAILABLE_POSES.forEach((p) => {
       menuItems.push(
         <MenuItem key={p.name} value={p.name} dense={true} disabled={p.name == pose && true}>
           {p.name}
@@ -78,8 +74,6 @@ function YogaPosesSelector({ availablePoses }: Props): JSX.Element {
     })
     return selectors
   }
-
-  console.log(selectedPoses)
 
   return (
     <Stack alignItems="center" sx={{ width: '100%' }}>

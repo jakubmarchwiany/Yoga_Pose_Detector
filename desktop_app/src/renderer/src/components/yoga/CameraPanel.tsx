@@ -1,7 +1,10 @@
 import { Stack } from '@mui/material'
 import CardMedia from '@mui/material/CardMedia'
+import { dataURLtoFile } from '@renderer/utils/dataURLToFile'
+import { imageFetch } from '@renderer/utils/fetches'
 import { useEffect } from 'react'
 import toast from 'react-hot-toast'
+import { Pose } from '../session_creator/types'
 
 type Params = {
   cameraId: string
@@ -9,10 +12,21 @@ type Params = {
 
 function Camera({ cameraId }: Params): JSX.Element {
   useEffect(() => {
-    startCamera()
+    const run = async (): Promise<void> => {
+      await startCamera()
+    }
+
+    run()
+
     const captureImage = setInterval(() => {
-      takepicture()
-    }, 1000)
+      const base64EncodedImage = takepicture()
+      const formData = new FormData()
+      formData.append('file', dataURLtoFile(base64EncodedImage, 'pose.png'))
+
+      imageFetch<{ pose: Pose }>(formData, '/detect_pose').then(({ pose }) => {
+        toast(`Pozycja wykryta: ${pose.name}`, { icon: '🧘', id: 'pose' })
+      })
+    }, 100)
 
     return () => {
       clearInterval(captureImage)
@@ -35,7 +49,7 @@ function Camera({ cameraId }: Params): JSX.Element {
     toast('Camera started', { icon: '📷' })
   }
 
-  const takepicture = (): void => {
+  const takepicture = (): string => {
     const video = document.getElementById('camera')! as HTMLVideoElement
     const canvas = document.getElementById('canvas') as HTMLCanvasElement
 
@@ -46,7 +60,7 @@ function Camera({ cameraId }: Params): JSX.Element {
     canvas.height = height
     context.drawImage(video, 0, 0, width, height)
     const captureImage = canvas.toDataURL('image/png')
-    console.log(captureImage.length)
+    return captureImage
   }
 
   return (

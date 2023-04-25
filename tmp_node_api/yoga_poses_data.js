@@ -75,5 +75,17 @@ export const YOGA_POSES = [
         ],
         tip: "Jeśli odczujesz w stopach (grzbietach stóp) bardzo bolesne rozciąganie, które uniemożliwi ci wykonanie pozycji, zroluj koc lub ręcznik i podłóż pod kostki stóp. Złagodzi to wyprost stawu skokowego i zmniejszy intensywność rozciągania. Z czasem będzie można zmniejszyć wałek lub zrezygnować z niego. Jeśli nie możesz zgiąć kolan na tyle aby usiąść na piętach lub po wejściu w pozycję pojawiający się w kolanach ból nie pozwala ci się rozluźnić włóż odpowiedniej grubości koc między pięty a pośladki.",
         level: 0
-    }
+    },
+
+    {
+        name: "test",
+        description: "test",
+        steps: ["test"]
+        ,
+        benefits: ["test",
+            "test"],
+        tip: "test",
+        level: 4,
+    },
+
 ]

@@ -1,5 +1,4 @@
 import {
-  Box,
   Button,
   Container,
   FormControl,
@@ -11,8 +10,8 @@ import {
   Typography
 } from '@mui/material'
 import { useEffect, useState } from 'react'
-import { CameraParameters } from './types'
 import ModeSelector from './ModeSelector'
+import { CameraParameters } from './types'
 
 type Params = {
   startSession: (cameraId: string) => void
