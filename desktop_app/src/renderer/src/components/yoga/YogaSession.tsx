@@ -33,7 +33,6 @@ function YogaSession({ restartSession, selectedCamera }: Props): JSX.Element {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
-    const toastId = toast.loading('Uruchamianie modelu...')
     let detectPoseInterval: string | number | NodeJS.Timer | undefined
 
     const runModel = async () => {
@@ -49,9 +48,16 @@ function YogaSession({ restartSession, selectedCamera }: Props): JSX.Element {
       const countAudio = new Audio(count)
       countAudio.loop = true
 
+      let firstLoadFlag = true
+      const toastId = toast.loading('Uruchamianie modelu...')
       detectPoseInterval = setInterval(async () => {
-        await detectPose(detector, poseClassifier, countAudio, toastId)
-      }, 100)
+        await detectPose(detector, poseClassifier, countAudio)
+        if (firstLoadFlag)
+          toast.success('Model uruchomiony', {
+            id: toastId
+          })
+        firstLoadFlag = false
+      }, 250)
     }
     runModel()
 
@@ -60,7 +66,7 @@ function YogaSession({ restartSession, selectedCamera }: Props): JSX.Element {
     }
   }, [])
 
-  const detectPose = async (detector, poseClassifier, countAudio, toastId) => {
+  const detectPose = async (detector, poseClassifier, countAudio) => {
     if (webcamRef.current && canvasRef.current) {
       // console.log(canvasRef.current.width, canvasRef.current.height)
       canvasRef.current.width = webcamRef.current.video!.clientWidth
@@ -71,9 +77,6 @@ function YogaSession({ restartSession, selectedCamera }: Props): JSX.Element {
       let notDetected = 0
       const video = webcamRef.current.video
       const pose = await detector.estimatePoses(video)
-      toast.success('Model został uruchomiony', {
-        id: toastId
-      })
 
       const ctx = canvasRef.current!.getContext('2d')
       ctx!.clearRect(0, 0, canvasRef.current.width, canvasRef.current?.height)
