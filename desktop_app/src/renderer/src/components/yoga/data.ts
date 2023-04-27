@@ -3,6 +3,17 @@
 export const POSITION_NOT_DETECTED_COLOR = 'rgb(255,255,255)'
 export const POSITION_DETECTED_COLOR = 'rgb(0,255,0)'
 
+export const AVAILABLE_POSITIONS = [
+  'Chair',
+  'Cobra',
+  'Dog',
+  'No_Pose',
+  'Shoulderstand',
+  'Traingle',
+  'Tree',
+  'Warrior'
+]
+
 export const INDEX_FOR_CLASS = {
   Chair: 0,
   Cobra: 1,
