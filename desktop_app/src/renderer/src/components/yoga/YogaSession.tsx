@@ -8,7 +8,6 @@ import { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import Webcam from 'react-webcam'
 import {
-  AVAILABLE_POSITIONS,
   INDEX_FOR_CLASS,
   INDEX_FOR_POINTS,
   POSITION_DETECTED_COLOR,
@@ -22,6 +21,8 @@ import count from './sound/count.wav'
 
 let currentSkeletonColor = POSITION_NOT_DETECTED_COLOR
 let flag = false
+
+let resizeRatio
 
 type Props = {
   restartSession: () => void
@@ -68,27 +69,36 @@ function YogaSession({ restartSession, selectedCamera }: Props): JSX.Element {
     }
   }, [])
 
-  const detectPose = async (detector, poseClassifier, countAudio) => {
-    if (webcamRef.current && canvasRef.current) {
-      // console.log(canvasRef.current.width, canvasRef.current.height)
+  useEffect(() => {
+    const handleResize = () => {
+      if (!webcamRef.current || !canvasRef.current) return
       canvasRef.current.width = webcamRef.current.video!.clientWidth
       canvasRef.current.height = webcamRef.current.video!.clientHeight
-      const resizeRatio = webcamRef.current.video!.clientWidth / 640
+      resizeRatio = webcamRef.current.video!.clientWidth / 640
+    }
 
-      let notDetectedPoints = 0
+    window.addEventListener('resize', handleResize)
+    handleResize()
+
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  const detectPose = async (detector, poseClassifier, countAudio) => {
+    if (webcamRef.current && canvasRef.current) {
       const video = webcamRef.current.video
       const estimatedPoses = await detector.estimatePoses(video)
 
-      const ctx = canvasRef.current!.getContext('2d')
-      ctx!.clearRect(0, 0, canvasRef.current.width, canvasRef.current?.height)
+      const canvasContext = canvasRef.current!.getContext('2d')
+      canvasContext!.clearRect(0, 0, canvasRef.current.width, canvasRef.current?.height)
 
+      let notDetectedPoints = 0
       if (estimatedPoses.length > 0) {
         const keypoints = estimatedPoses[0].keypoints
         let input = keypoints.map((keypoint) => {
           if (keypoint.score > 0.4) {
             if (!(keypoint.name === 'left_eye' || keypoint.name === 'right_eye')) {
               drawPoint(
-                ctx,
+                canvasContext,
                 keypoint.x * resizeRatio,
                 keypoint.y * resizeRatio,
                 10,
@@ -100,7 +110,7 @@ function YogaSession({ restartSession, selectedCamera }: Props): JSX.Element {
                 connections.forEach((connection) => {
                   let conName = connection.toUpperCase()
                   drawSegment(
-                    ctx,
+                    canvasContext,
                     [keypoint.x * resizeRatio, keypoint.y * resizeRatio],
                     [
                       keypoints[INDEX_FOR_POINTS[conName]].x * resizeRatio,
@@ -168,16 +178,14 @@ function YogaSession({ restartSession, selectedCamera }: Props): JSX.Element {
             height={'100%'}
             id="webcam"
             ref={webcamRef}
-            videoConstraints={{ deviceId: { exact: selectedCamera } }}
             style={{
-              position: 'absolute',
+              // position: 'absolute',
               padding: '0px'
             }}
           />
           <canvas
             ref={canvasRef}
             id="my-canvas"
-            height={'100%'}
             style={{
               position: 'absolute'
             }}
