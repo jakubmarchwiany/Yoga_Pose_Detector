@@ -51,7 +51,7 @@ function YogaSession({ restartSession, selectedCamera }: Props): JSX.Element {
 
       detectPoseInterval = setInterval(async () => {
         await detectPose(detector, poseClassifier, countAudio, toastId)
-      }, 500)
+      }, 100)
     }
     runModel()
 
@@ -62,6 +62,12 @@ function YogaSession({ restartSession, selectedCamera }: Props): JSX.Element {
 
   const detectPose = async (detector, poseClassifier, countAudio, toastId) => {
     if (webcamRef.current && canvasRef.current) {
+      // console.log(canvasRef.current.width, canvasRef.current.height)
+      canvasRef.current.width = webcamRef.current.video!.clientWidth
+      canvasRef.current.height = webcamRef.current.video!.clientHeight
+      const resizeHeightRatio = webcamRef.current.video!.clientHeight / 640
+      const resizeWidthRatio = webcamRef.current.video!.clientWidth / 480
+
       let notDetected = 0
       const video = webcamRef.current.video
       const pose = await detector.estimatePoses(video)
@@ -77,7 +83,13 @@ function YogaSession({ restartSession, selectedCamera }: Props): JSX.Element {
         let input = keypoints.map((keypoint) => {
           if (keypoint.score > 0.4) {
             if (!(keypoint.name === 'left_eye' || keypoint.name === 'right_eye')) {
-              drawPoint(ctx, keypoint.x, keypoint.y, 10, 'rgb(255,255,255)')
+              drawPoint(
+                ctx,
+                keypoint.x * resizeWidthRatio,
+                keypoint.y * resizeHeightRatio,
+                10,
+                'rgb(255,255,255)'
+              )
               let connections = keypointConnections[keypoint.name]
 
               if (connections !== undefined) {
@@ -85,10 +97,10 @@ function YogaSession({ restartSession, selectedCamera }: Props): JSX.Element {
                   let conName = connection.toUpperCase()
                   drawSegment(
                     ctx,
-                    [keypoint.x, keypoint.y],
+                    [keypoint.x * 2, keypoint.y * 2],
                     [
-                      keypoints[INDEX_FOR_POINTS[conName]].x,
-                      keypoints[INDEX_FOR_POINTS[conName]].y
+                      keypoints[INDEX_FOR_POINTS[conName]].x * resizeWidthRatio,
+                      keypoints[INDEX_FOR_POINTS[conName]].y * resizeHeightRatio
                     ],
                     currentSkeletonColor
                   )
@@ -193,8 +205,10 @@ function YogaSession({ restartSession, selectedCamera }: Props): JSX.Element {
       <Grid xs={9}>
         <Stack sx={{ height: '100vh' }}>
           <Webcam
-            width="640px"
-            height="480px"
+            // width="1280px"
+            // height="960px"
+            // width={'100%'}
+            height={'100%'}
             id="webcam"
             ref={webcamRef}
             videoConstraints={{ deviceId: { exact: selectedCamera } }}
@@ -208,13 +222,15 @@ function YogaSession({ restartSession, selectedCamera }: Props): JSX.Element {
           <canvas
             ref={canvasRef}
             id="my-canvas"
-            width="640px"
-            height="480px"
+            // width="1280px"
+            // height="960px"
+            // width={'100%'}
+            height={'100%'}
             style={{
-              position: 'absolute',
+              position: 'absolute'
               //   left: 120,
               //   top: 100,
-              zIndex: 1
+              // zIndex: 1
             }}
           ></canvas>
         </Stack>
