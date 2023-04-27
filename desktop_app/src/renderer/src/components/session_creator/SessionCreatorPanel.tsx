@@ -7,10 +7,12 @@ import {
   Select,
   SelectChangeEvent,
   Stack,
+  TextField,
   Typography
 } from '@mui/material'
 import { useEffect, useState } from 'react'
 import ModeSelector from './ModeSelector'
+import YogaPosesSelector from './YogaPosesSelector'
 import { CameraParameters } from './types'
 
 type Params = {
@@ -18,8 +20,9 @@ type Params = {
 }
 
 function SessionCreatorPanel({ startSession }: Params): JSX.Element {
-  const [availableCameras, setAvailableCameras] = useState<CameraParameters[]>([])
+  const [mode, setMode] = useState<string>('Detection_Pose')
   const [selectedCamera, setSelectedCamera] = useState<string>('')
+  const [availableCameras, setAvailableCameras] = useState<CameraParameters[]>([])
 
   useEffect(() => {
     getAvailableCameras()
@@ -48,7 +51,6 @@ function SessionCreatorPanel({ startSession }: Params): JSX.Element {
   const handleChange = (event: SelectChangeEvent): void => {
     setSelectedCamera(event.target.value as string)
   }
-
   return (
     <Container
       component="main"
@@ -71,7 +73,8 @@ function SessionCreatorPanel({ startSession }: Params): JSX.Element {
           </>
         ) : (
           <>
-            <ModeSelector />
+            <ModeSelector mode={mode} setMode={setMode} />
+            {mode == 'Yoga_session' && <YogaPosesSelector />}
             <FormControl sx={{ mt: 3 }}>
               <InputLabel id="choose-camera">Wybierz kamerę</InputLabel>
               <Select
@@ -89,6 +92,7 @@ function SessionCreatorPanel({ startSession }: Params): JSX.Element {
                   )
                 })}
               </Select>
+
               <Button
                 variant="outlined"
                 onClick={(): void => startSession(selectedCamera)}

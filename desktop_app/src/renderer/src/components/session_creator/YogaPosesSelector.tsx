@@ -1,20 +1,24 @@
 import {
   FormControl,
+  InputAdornment,
   InputLabel,
   MenuItem,
   Select,
   SelectChangeEvent,
   Stack,
+  TextField,
+  Tooltip,
   Typography
 } from '@mui/material'
 import Grid from '@mui/material/Unstable_Grid2/Grid2'
-import React from 'react'
+import { useState } from 'react'
 import { AVAILABLE_POSES } from './types'
 
 function YogaPosesSelector(): JSX.Element {
-  const [selectedPoses, setSelectedPoses] = React.useState<[[string, number]]>([['', 0]])
+  const [selectedPoses, setSelectedPoses] = useState<[[string, number]]>([['', 30]])
 
-  const handleChange = (event: SelectChangeEvent): void => {
+  console.log(selectedPoses)
+  const handleChangePosition = (event: SelectChangeEvent): void => {
     const index = parseInt(event.target.name)
     const value = event.target.value as string
 
@@ -25,15 +29,26 @@ function YogaPosesSelector(): JSX.Element {
     } else {
       if (selectedPoses[index][0] === '') {
         const tmp = selectedPoses
-        tmp[index] = [value, 0]
-        tmp.push(['', 0])
+        tmp[index][0] = value
+        tmp.push(['', 30])
         setSelectedPoses([...tmp])
       } else {
         const tmp = selectedPoses
-        tmp[index] = [value, 0]
+        tmp[index][0] = value
         setSelectedPoses([...tmp])
       }
     }
+  }
+
+  const handleChangeTime = (event: { target: { name: string; value: string } }): void => {
+    const index = parseInt(event.target.name)
+    const value = parseInt(event.target.value)
+
+    if (value < 0 || value > 600) return
+
+    const tmp = selectedPoses
+    tmp[index][1] = value
+    setSelectedPoses([...tmp])
   }
 
   const generateMenuItems = (pose: string): JSX.Element[] => {
@@ -63,12 +78,37 @@ function YogaPosesSelector(): JSX.Element {
     selectedPoses.forEach((pose, index) => {
       selectors.push(
         <Grid xs={12} md={6} key={index} alignItems="center">
-          <FormControl key={index} sx={{ mt: 2 }} fullWidth>
-            <InputLabel>Pozycja {index + 1}</InputLabel>
-            <Select value={pose[0]} name={index.toString()} onChange={handleChange}>
-              {generateMenuItems(pose[0])}
-            </Select>
-          </FormControl>
+          <Stack direction={'row'} mt={2}>
+            <FormControl key={index} fullWidth>
+              <InputLabel>Pozycja {index + 1}</InputLabel>
+              <Select value={pose[0]} name={index.toString()} onChange={handleChangePosition}>
+                {generateMenuItems(pose[0])}
+              </Select>
+            </FormControl>
+            <Tooltip
+              placement="top"
+              title="Ustaw czas jaki chcesz spędzić w tej pozycji. (scrolla)"
+              sx={{ maxWidth: '100px' }}
+            >
+              <TextField
+                type="number"
+                value={pose[1]}
+                name={index.toString()}
+                variant="outlined"
+                inputProps={{
+                  min: '0',
+                  max: '600',
+                  step: '5',
+                  // shrink: true,
+                  style: { textAlign: 'end' }
+                }}
+                InputProps={{
+                  endAdornment: <InputAdornment position="start">s</InputAdornment>
+                }}
+                onChange={handleChangeTime}
+              />
+            </Tooltip>
+          </Stack>
         </Grid>
       )
     })
