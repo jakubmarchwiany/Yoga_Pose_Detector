@@ -5,6 +5,7 @@ import YogaSession from './yoga/YogaSession'
 
 function App(): JSX.Element {
   const [isSessionStarted, setIsSessionStarted] = useState<boolean>(false)
+  const [selectedMode, setSelectedMode] = useState<string>('')
   const [selectedCamera, setSelectedCamera] = useState<string>('')
 
   const startSession = (cameraId: string): void => {
@@ -13,10 +14,10 @@ function App(): JSX.Element {
   }
 
   const restartSession = (): void => {
-    setIsSessionStarted(false)
     setSelectedCamera('')
+    setIsSessionStarted(false)
   }
-
+  console.log(selectedMode, selectedCamera)
   return (
     <Grid
       container
