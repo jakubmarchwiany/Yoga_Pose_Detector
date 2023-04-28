@@ -18,6 +18,7 @@ import { drawPoint, drawSegment } from './draw'
 import InfoPanel from './info/InfoPanel'
 import { landmarks_to_embedding } from './predictHelpers'
 import count from './sound/count.wav'
+import { SessionParams } from '../session_creator/types'
 
 let currentSkeletonColor = POSITION_NOT_DETECTED_COLOR
 let flag = false
@@ -25,15 +26,17 @@ let flag = false
 let resizeRatio
 
 type Props = {
+  sessionParams: SessionParams
   restartSession: () => void
-  selectedCamera: string
 }
 
-function YogaSession({ restartSession, selectedCamera }: Props): JSX.Element {
+function YogaSession({ sessionParams, restartSession }: Props): JSX.Element {
   const [poseToDetect, setPoseToDetect] = useState('Tree')
 
   const webcamRef = useRef<Webcam>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  console.log(sessionParams)
 
   useEffect(() => {
     let detectPoseInterval: string | number | NodeJS.Timer | undefined

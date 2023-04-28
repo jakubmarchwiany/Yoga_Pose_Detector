@@ -2,22 +2,22 @@ import { Unstable_Grid2 as Grid } from '@mui/material'
 import { useState } from 'react'
 import SessionCreatorPanel from './session_creator/SessionCreatorPanel'
 import YogaSession from './yoga/YogaSession'
+import { SessionParams } from './session_creator/types'
 
 function App(): JSX.Element {
   const [isSessionStarted, setIsSessionStarted] = useState<boolean>(false)
-  const [selectedMode, setSelectedMode] = useState<string>('')
-  const [selectedCamera, setSelectedCamera] = useState<string>('')
+  const [sessionParams, setSessionParams] = useState<SessionParams>()
 
-  const startSession = (cameraId: string): void => {
-    setSelectedCamera(cameraId)
+  const startSession = (sessionParams: SessionParams): void => {
+    console.log(sessionParams)
+    setSessionParams(sessionParams)
     setIsSessionStarted(true)
   }
 
   const restartSession = (): void => {
-    setSelectedCamera('')
     setIsSessionStarted(false)
   }
-  console.log(selectedMode, selectedCamera)
+
   return (
     <Grid
       container
@@ -29,7 +29,7 @@ function App(): JSX.Element {
       bgcolor={'background.default'}
     >
       {isSessionStarted ? (
-        <YogaSession restartSession={restartSession} selectedCamera={selectedCamera} />
+        <YogaSession restartSession={restartSession} sessionParams={sessionParams!} />
       ) : (
         <Grid xs={12}>
           <SessionCreatorPanel startSession={startSession} />

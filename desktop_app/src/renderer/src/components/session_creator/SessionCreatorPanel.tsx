@@ -13,20 +13,40 @@ import {
 import { useEffect, useState } from 'react'
 import ModeSelector from './ModeSelector'
 import YogaPosesSelector from './YogaPosesSelector'
-import { CameraParameters } from './types'
+import { AVAILABLE_POSES, CameraParameters, SessionParams } from './types'
 
 type Params = {
-  startSession: (cameraId: string) => void
+  startSession: (sesionParams: SessionParams) => void
 }
 
 function SessionCreatorPanel({ startSession }: Params): JSX.Element {
-  const [mode, setMode] = useState<string>('Detection_Pose')
-  const [selectedCamera, setSelectedCamera] = useState<string>('')
+  const [mode, setMode] = useState<string>('Pose_detection')
   const [availableCameras, setAvailableCameras] = useState<CameraParameters[]>([])
+  const [selectedPoses, setSelectedPoses] = useState<[[string, number]]>([['', 30]])
+  const [selectedCamera, setSelectedCamera] = useState<string>('')
 
   useEffect(() => {
     getAvailableCameras()
   }, [])
+
+  const prepareToStartSession = (): void => {
+    const selectedPosesCopy = [...selectedPoses]
+    selectedPosesCopy.pop()
+    const preparedPoses = selectedPosesCopy!.map((pose) => {
+      console.log(pose[0])
+      for (let index = 0; index < AVAILABLE_POSES.length; index++) {
+        if (pose[0] === AVAILABLE_POSES[index].name)
+          return [pose[0], pose[1], AVAILABLE_POSES[index].value]
+      }
+    }) as [[string, number, number]]
+
+    const sessionParams = {
+      mode: mode,
+      Poses: preparedPoses,
+      camera: selectedCamera
+    }
+    startSession(sessionParams)
+  }
 
   const getAvailableCameras = (): void => {
     navigator.mediaDevices
@@ -74,7 +94,12 @@ function SessionCreatorPanel({ startSession }: Params): JSX.Element {
         ) : (
           <>
             <ModeSelector mode={mode} setMode={setMode} />
-            {mode == 'Yoga_session' && <YogaPosesSelector />}
+            {mode == 'Yoga_session' && (
+              <YogaPosesSelector
+                selectedPoses={selectedPoses}
+                setSelectedPoses={setSelectedPoses}
+              />
+            )}
             <FormControl sx={{ mt: 3 }}>
               <InputLabel id="choose-camera">Wybierz kamerę</InputLabel>
               <Select
@@ -95,8 +120,10 @@ function SessionCreatorPanel({ startSession }: Params): JSX.Element {
 
               <Button
                 variant="outlined"
-                onClick={(): void => startSession(selectedCamera)}
-                disabled={selectedCamera === ''}
+                onClick={prepareToStartSession}
+                disabled={
+                  selectedCamera === '' || (mode === 'Yoga_session' && selectedPoses.length == 1)
+                }
                 autoFocus
               >
                 Rozpocznij sesję Jogi

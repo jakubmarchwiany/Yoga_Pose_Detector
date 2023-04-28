@@ -5,6 +5,12 @@ export type Pose = {
   value: number
 }
 
+export type SessionParams = {
+  mode: string
+  Poses: [string, number, number][]
+  camera: string
+}
+
 export const AVAILABLE_POSES: Pose[] = [
   { name: 'Chair', value: 0 },
   { name: 'Cobra', value: 1 },

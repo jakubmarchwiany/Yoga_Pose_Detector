@@ -11,13 +11,14 @@ import {
   Typography
 } from '@mui/material'
 import Grid from '@mui/material/Unstable_Grid2/Grid2'
-import { useState } from 'react'
 import { AVAILABLE_POSES } from './types'
 
-function YogaPosesSelector(): JSX.Element {
-  const [selectedPoses, setSelectedPoses] = useState<[[string, number]]>([['', 30]])
+type Props = {
+  selectedPoses: [[string, number]]
+  setSelectedPoses: (selectedPoses: [[string, number]]) => void
+}
 
-  console.log(selectedPoses)
+function YogaPosesSelector({ selectedPoses, setSelectedPoses }: Props): JSX.Element {
   const handleChangePosition = (event: SelectChangeEvent): void => {
     const index = parseInt(event.target.name)
     const value = event.target.value as string
@@ -63,7 +64,7 @@ function YogaPosesSelector(): JSX.Element {
 
     AVAILABLE_POSES.forEach((p) => {
       menuItems.push(
-        <MenuItem key={p.name} value={p.name} dense={true} disabled={p.name == pose && true}>
+        <MenuItem key={p.name} value={p.name} disabled={p.name == pose && true}>
           {p.name}
         </MenuItem>
       )
