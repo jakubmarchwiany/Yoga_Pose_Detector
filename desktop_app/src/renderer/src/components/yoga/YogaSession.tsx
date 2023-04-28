@@ -155,7 +155,6 @@ function YogaSession({ sessionParams, restartSession }: Props): JSX.Element {
         posesPropability.sort((a, b) => b[1] - a[1])
         posesPropability = posesPropability.slice(0, 3)
 
-        console.log(posesPropability)
         setInfo({ pointsDetected: 17 - notDetectedPoints, poses: posesPropability })
 
         // const mostProbablePose = posesResults.slice(0, 3).map((x) => x[0])
