@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import Webcam from 'react-webcam'
 import {
+  AVAILABLE_POSITIONS,
   INDEX_FOR_CLASS,
   INDEX_FOR_POINTS,
   POSITION_DETECTED_COLOR,
@@ -22,7 +23,6 @@ import { SessionParams } from '../session_creator/types'
 
 let currentSkeletonColor = POSITION_NOT_DETECTED_COLOR
 let flag = false
-
 let resizeRatio
 
 type Props = {
@@ -30,13 +30,17 @@ type Props = {
   restartSession: () => void
 }
 
+export type Info = {
+  pointsDetected: number
+  poses: [string, number][]
+}
+
 function YogaSession({ sessionParams, restartSession }: Props): JSX.Element {
   const [poseToDetect, setPoseToDetect] = useState('Tree')
+  const [info, setInfo] = useState<Info>()
 
   const webcamRef = useRef<Webcam>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
-
-  console.log(sessionParams)
 
   useEffect(() => {
     let detectPoseInterval: string | number | NodeJS.Timer | undefined
@@ -63,7 +67,7 @@ function YogaSession({ sessionParams, restartSession }: Props): JSX.Element {
             id: toastId
           })
         firstLoadFlag = false
-      }, 500)
+      }, 250)
     }
     runModel()
 
@@ -93,6 +97,7 @@ function YogaSession({ sessionParams, restartSession }: Props): JSX.Element {
 
       const canvasContext = canvasRef.current!.getContext('2d')
       canvasContext!.clearRect(0, 0, canvasRef.current.width, canvasRef.current?.height)
+      canvasContext!.setTransform(-1, 0, 0, 1, canvasRef.current.width, 0)
 
       let notDetectedPoints = 0
       if (estimatedPoses.length > 0) {
@@ -130,7 +135,7 @@ function YogaSession({ sessionParams, restartSession }: Props): JSX.Element {
           return [keypoint.x, keypoint.y]
         })
 
-        if (notDetectedPoints > 4) {
+        if (notDetectedPoints > 10) {
           currentSkeletonColor = POSITION_NOT_DETECTED_COLOR
           return
         }
@@ -141,14 +146,22 @@ function YogaSession({ sessionParams, restartSession }: Props): JSX.Element {
         const classificationArray = await classification.array()
         const posesResults = classificationArray[0]
 
+        let posesPropability = posesResults.map((x: number, index: number) => [
+          AVAILABLE_POSITIONS[index],
+          // x.toFixed(5)
+          x.toFixed(3)
+        ])
+
+        posesPropability.sort((a, b) => b[1] - a[1])
+        posesPropability = posesPropability.slice(0, 3)
+
+        console.log(posesPropability)
+        setInfo({ pointsDetected: 17 - notDetectedPoints, poses: posesPropability })
+
+        // const mostProbablePose = posesResults.slice(0, 3).map((x) => x[0])
         // console.log(classificationArray)
 
         const currentPoseIndex = INDEX_FOR_CLASS[poseToDetect]
-
-        // const posesPropability = posesResults.map((x: number, index: number) => [
-        //   AVAILABLE_POSITIONS[index],
-        //   x.toFixed(3)
-        // ])
 
         // posesPropability.sort((a, b) => b[1] - a[1])
         // posesPropability.slice(0, 3)
@@ -181,6 +194,7 @@ function YogaSession({ sessionParams, restartSession }: Props): JSX.Element {
             height={'100%'}
             id="webcam"
             ref={webcamRef}
+            mirrored={true}
             style={{
               // position: 'absolute',
               padding: '0px'
@@ -196,7 +210,7 @@ function YogaSession({ sessionParams, restartSession }: Props): JSX.Element {
         </Stack>
       </Grid>
       <Grid xs={3}>
-        <InfoPanel restartSession={restartSession} />
+        <InfoPanel info={info!} sessionParams={sessionParams} restartSession={restartSession} />
       </Grid>
     </>
   )
