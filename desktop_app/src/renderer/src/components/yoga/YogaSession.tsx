@@ -7,6 +7,7 @@ import * as tf from '@tensorflow/tfjs'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import Webcam from 'react-webcam'
+import { SessionParams } from '../session_creator/types'
 import {
   AVAILABLE_POSITIONS,
   INDEX_FOR_CLASS,
@@ -19,28 +20,28 @@ import { drawPoint, drawSegment } from './draw'
 import InfoPanel from './info/InfoPanel'
 import { landmarks_to_embedding } from './predictHelpers'
 import count from './sound/count.wav'
-import { SessionParams } from '../session_creator/types'
 
+let roundClassficaiton = 0
+let resizeRatio: number
 let currentSkeletonColor = POSITION_NOT_DETECTED_COLOR
-let flag = false
-let resizeRatio
 
 type Props = {
   sessionParams: SessionParams
   restartSession: () => void
 }
 
-export type Info = {
-  pointsDetected: number
-  poses: [string, number][]
-}
-
 function YogaSession({ sessionParams, restartSession }: Props): JSX.Element {
-  const [poseToDetect, setPoseToDetect] = useState('Tree')
-  const [info, setInfo] = useState<Info>()
-
   const webcamRef = useRef<Webcam>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  const [round, setRound] = useState(0)
+  const [poseCorrent, setPoseCorrent] = useState(false)
+  const [posesDetected, setPosesDetected] = useState<[string, number][]>([])
+  const [poseTimeLeft, setPoseTimeLeft] = useState(() => {
+    if (sessionParams.mode === 'Pose_detection') return 0
+    else return sessionParams.Poses[0][1]
+  })
+  const [pointsDetected, setPointsDetected] = useState(0)
 
   useEffect(() => {
     let detectPoseInterval: string | number | NodeJS.Timer | undefined
@@ -56,7 +57,7 @@ function YogaSession({ sessionParams, restartSession }: Props): JSX.Element {
       )
 
       const countAudio = new Audio(count)
-      countAudio.loop = true
+      // countAudio.loop = true
 
       let firstLoadFlag = true
       const toastId = toast.loading('Uruchamianie modelu...')
@@ -134,8 +135,8 @@ function YogaSession({ sessionParams, restartSession }: Props): JSX.Element {
           }
           return [keypoint.x, keypoint.y]
         })
-
-        if (notDetectedPoints > 10) {
+        setPointsDetected(17 - notDetectedPoints)
+        if (notDetectedPoints > 4) {
           currentSkeletonColor = POSITION_NOT_DETECTED_COLOR
           return
         }
@@ -146,44 +147,73 @@ function YogaSession({ sessionParams, restartSession }: Props): JSX.Element {
         const classificationArray = await classification.array()
         const posesResults = classificationArray[0]
 
-        let posesPropability = posesResults.map((x: number, index: number) => [
-          AVAILABLE_POSITIONS[index],
-          // x.toFixed(5)
-          x.toFixed(3)
-        ])
+        if (sessionParams.mode === 'Pose_detection') {
+          let posesPropability = posesResults.map((x: number, index: number) => [
+            AVAILABLE_POSITIONS[index],
+            // x.toFixed(5)
+            x.toFixed(3)
+          ])
 
-        posesPropability.sort((a, b) => b[1] - a[1])
-        posesPropability = posesPropability.slice(0, 3)
+          posesPropability.sort((a, b) => b[1] - a[1])
+          posesPropability = posesPropability.slice(0, 3)
 
-        setInfo({ pointsDetected: 17 - notDetectedPoints, poses: posesPropability })
-
-        // const mostProbablePose = posesResults.slice(0, 3).map((x) => x[0])
-        // console.log(classificationArray)
-
-        const currentPoseIndex = INDEX_FOR_CLASS[poseToDetect]
-
-        // posesPropability.sort((a, b) => b[1] - a[1])
-        // posesPropability.slice(0, 3)
-
-        // posesPropability.map((x) => console.log(x[0] + ' ' + x[1]))
-
-        if (posesResults[currentPoseIndex] > 0.97) {
-          if (!flag) {
-            countAudio.play()
-            // setStartingTime(new Date(Date()).getTime())
-            // flag = true
-          }
-          // setCurrentTime(new Date(Date()).getTime())
-          currentSkeletonColor = POSITION_DETECTED_COLOR
+          setPosesDetected(posesPropability)
         } else {
-          // flag = false
-          currentSkeletonColor = POSITION_NOT_DETECTED_COLOR
-          countAudio.pause()
-          countAudio.currentTime = 0
+          const currentPoseIndex = INDEX_FOR_CLASS[sessionParams.Poses[roundClassficaiton][0]]
+
+          if (posesResults[currentPoseIndex] > 0.97) {
+            setPoseCorrent(true)
+            // if (!flag) {
+            countAudio.play()
+            //   // flag = true
+            // }
+            currentSkeletonColor = POSITION_DETECTED_COLOR
+          } else {
+            setPoseCorrent(false)
+            currentSkeletonColor = POSITION_NOT_DETECTED_COLOR
+
+            // flag = false
+            countAudio.pause()
+            countAudio.currentTime = 0
+          }
         }
       }
     }
   }
+  let poseTimerInterval
+  const poseTimer = () => {
+    if (poseTimeLeft === 0) {
+      setPoseCorrent(false)
+      if (roundClassficaiton < sessionParams.Poses.length - 1) {
+        setRound((prev) => prev + 1)
+        setPoseTimeLeft(sessionParams.Poses[round + 1][1])
+        roundClassficaiton += 1
+      } else {
+        toast.success('Sesja Yogi zakończona!', { icon: '🧘‍♀️', duration: 5000 })
+        restartSession()
+      }
+    } else {
+      if (poseCorrent) {
+        poseTimerInterval =
+          !poseTimerInterval &&
+          setInterval(() => {
+            console.log('interval')
+            setPoseTimeLeft((prevCount) => prevCount - 1)
+          }, 1000)
+      } else {
+        console.log('incorrect')
+        clearInterval(poseTimerInterval)
+      }
+    }
+  }
+
+  useEffect(() => {
+    if (sessionParams.mode === 'Pose_detection') return
+
+    poseTimer()
+
+    return () => clearInterval(poseTimerInterval)
+  }, [round, poseCorrent, poseTimeLeft])
 
   return (
     <>
@@ -209,7 +239,15 @@ function YogaSession({ sessionParams, restartSession }: Props): JSX.Element {
         </Stack>
       </Grid>
       <Grid xs={3}>
-        <InfoPanel info={info!} sessionParams={sessionParams} restartSession={restartSession} />
+        <InfoPanel
+          round={round}
+          poseCorrent={poseCorrent}
+          pointsDetected={pointsDetected}
+          posesDetected={posesDetected}
+          poseTimeLeft={poseTimeLeft}
+          sessionParams={sessionParams}
+          restartSession={restartSession}
+        />
       </Grid>
     </>
   )

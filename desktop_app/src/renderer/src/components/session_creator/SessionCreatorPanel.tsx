@@ -33,7 +33,6 @@ function SessionCreatorPanel({ startSession }: Params): JSX.Element {
     const selectedPosesCopy = [...selectedPoses]
     selectedPosesCopy.pop()
     const preparedPoses = selectedPosesCopy!.map((pose) => {
-      console.log(pose[0])
       for (let index = 0; index < AVAILABLE_POSES.length; index++) {
         if (pose[0] === AVAILABLE_POSES[index].name)
           return [pose[0], pose[1], AVAILABLE_POSES[index].value]

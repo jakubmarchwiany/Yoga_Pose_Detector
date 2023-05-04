@@ -1,39 +1,49 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Box, Button, Divider, Stack, Typography } from '@mui/material'
+import { Button, Divider, Stack, Typography } from '@mui/material'
 import { SessionParams } from '@renderer/components/session_creator/types'
-import { Info } from '../YogaSession'
-import { useEffect, useState } from 'react'
 import YogaPose from './YogaPose'
 
-// import image_src from '../images/chair.jpg';
-// const image_src = await import('../images/chair.jpg')
-
 type Props = {
-  info: Info
+  round: number
+  poseCorrent: boolean
+  pointsDetected: number
+  posesDetected: [string, number][]
+  poseTimeLeft: number
   sessionParams: SessionParams
   restartSession: () => void
 }
 
-function InfoPanel({ info, sessionParams, restartSession }: Props): JSX.Element {
+function InfoPanel({
+  round,
+  poseCorrent,
+  poseTimeLeft,
+  pointsDetected,
+  posesDetected,
+  sessionParams,
+  restartSession
+}: Props): JSX.Element {
   const { mode, Poses } = sessionParams
 
-  if (mode === 'Pose_detection' && info) {
+  if (mode === 'Pose_detection') {
     return (
       <Stack height="100%" width="100%" alignItems="center">
-        <Typography sx={{ typography: { xs: 'h6', md: 'h5', xl: 'h4' } }} mt={'3vh'}>
-          Wykrywane pozycje
-        </Typography>
-
-        <YogaPose name={info.poses[0][0]} propability={info.poses[0][1]} />
-        <YogaPose name={info.poses[1][0]} propability={info.poses[1][1]} />
-        <YogaPose name={info.poses[2][0]} propability={info.poses[2][1]} />
-
-        <Divider style={{ width: '100%' }} sx={{ mt: '1vh' }} />
-
-        <Typography sx={{ typography: { xs: 'body1', md: 'h6', xl: 'h5' } }}>
-          Wykryta liczba puntków: {info.pointsDetected}
-        </Typography>
+        {posesDetected.length > 0 && (
+          <>
+            <YogaPose name={posesDetected[0][0]} propability={posesDetected[0][1]} />
+            <YogaPose name={posesDetected[1][0]} propability={posesDetected[1][1]} />
+            <YogaPose name={posesDetected[2][0]} propability={posesDetected[2][1]} />
+          </>
+        )}
+        {pointsDetected < 14 ? (
+          <Typography variant="h4" mt={1} mb={3}>
+            Za mało wykrych punktów
+          </Typography>
+        ) : (
+          <Typography mt={1.5} sx={{ typography: { xs: 'body1', md: 'h6', xl: 'h5' } }}>
+            Wykryta liczba puntków: {pointsDetected}
+          </Typography>
+        )}
 
         <Button fullWidth sx={{ mt: 'auto' }} onClick={restartSession}>
           Restart
@@ -43,18 +53,29 @@ function InfoPanel({ info, sessionParams, restartSession }: Props): JSX.Element 
   } else {
     return (
       <Stack height="100%" width="100%" alignItems="center">
-        <Typography variant="h5" mt={1}>
-          Wykrywane pozycje
+        <Typography variant="h3" mt={1}>
+          Pozycja {round + 1}
         </Typography>
-
-        <Typography variant="h6" mt={2}>
-          Kwiat lotosu
+        {round + 1 === Poses.length ? (
+          <Typography variant="h4">Ostatnia Pozycja</Typography>
+        ) : (
+          <Typography variant="h4" mt={1} mb={3}>
+            Następna pozycja: {Poses[round + 1][0]}
+          </Typography>
+        )}
+        <YogaPose name={Poses[round][0]} />
+        <Typography variant="h1" mt={1} color={poseCorrent ? 'green' : 'white'}>
+          {poseTimeLeft}
         </Typography>
-
-        <Typography variant="h5" mt={3}>
-          Wskazówki:
-        </Typography>
-
+        {pointsDetected < 14 ? (
+          <Typography variant="h4" mt={1} mb={3}>
+            Za mało wykrych punktów
+          </Typography>
+        ) : (
+          <Typography mt={1.5} sx={{ typography: { xs: 'body1', md: 'h6', xl: 'h5' } }}>
+            Wykryta liczba puntków: {pointsDetected}
+          </Typography>
+        )}
         <Button fullWidth sx={{ mt: 'auto' }} onClick={restartSession}>
           Restart
         </Button>
