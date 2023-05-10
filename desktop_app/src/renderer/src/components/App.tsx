@@ -18,6 +18,8 @@ function App(): JSX.Element {
     setIsSessionStarted(false)
   }
 
+  
+
   return (
     <Grid
       container

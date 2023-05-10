@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react'
 import ModeSelector from './ModeSelector'
 import YogaPosesSelector from './YogaPosesSelector'
 import { AVAILABLE_POSES, CameraParameters, SessionParams } from './types'
+import Instruction from '../guide/Instruction'
 
 type Params = {
   startSession: (sesionParams: SessionParams) => void
@@ -127,6 +128,7 @@ function SessionCreatorPanel({ startSession }: Params): JSX.Element {
               >
                 Rozpocznij sesję Jogi
               </Button>
+              <Instruction />
             </FormControl>
           </>
         )}
