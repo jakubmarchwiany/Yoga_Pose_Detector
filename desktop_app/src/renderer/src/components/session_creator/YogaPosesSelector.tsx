@@ -97,7 +97,7 @@ function YogaPosesSelector({ selectedPoses, setSelectedPoses }: Props): JSX.Elem
                 name={index.toString()}
                 variant="outlined"
                 inputProps={{
-                  min: '0',
+                  min: '5',
                   max: '600',
                   step: '5',
                   // shrink: true,

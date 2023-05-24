@@ -189,6 +189,7 @@ function YogaSession({ sessionParams, restartSession }: Props): JSX.Element {
         setPoseTimeLeft(sessionParams.Poses[round + 1][1])
         roundClassficaiton += 1
       } else {
+        roundClassficaiton=0
         toast.success('Sesja Yogi zakończona!', { icon: '🧘‍♀️', duration: 5000 })
         restartSession()
       }
