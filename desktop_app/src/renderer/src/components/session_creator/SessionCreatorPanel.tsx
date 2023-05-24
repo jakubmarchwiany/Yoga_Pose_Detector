@@ -7,14 +7,13 @@ import {
   Select,
   SelectChangeEvent,
   Stack,
-  TextField,
   Typography
 } from '@mui/material'
 import { useEffect, useState } from 'react'
+import Instruction from '../guide/Instruction'
 import ModeSelector from './ModeSelector'
 import YogaPosesSelector from './YogaPosesSelector'
 import { AVAILABLE_POSES, CameraParameters, SessionParams } from './types'
-import Instruction from '../guide/Instruction'
 
 type Params = {
   startSession: (sesionParams: SessionParams) => void
@@ -38,6 +37,7 @@ function SessionCreatorPanel({ startSession }: Params): JSX.Element {
         if (pose[0] === AVAILABLE_POSES[index].name)
           return [pose[0], pose[1], AVAILABLE_POSES[index].value]
       }
+      return []
     }) as [[string, number, number]]
 
     const sessionParams = {

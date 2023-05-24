@@ -30,7 +30,9 @@ module.exports = {
     '@typescript-eslint/no-empty-function': ['error', { allow: ['arrowFunctions'] }],
     '@typescript-eslint/no-explicit-any': 'error',
     '@typescript-eslint/no-non-null-assertion': 'off',
-    'prettier/prettier': 0
+    '@typescript-eslint/no-implicit-returns': 'off',
+    'prettier/prettier': 0,
+  
   },
   overrides: [
     {

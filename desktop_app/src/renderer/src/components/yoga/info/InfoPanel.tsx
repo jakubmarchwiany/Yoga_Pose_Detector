@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Button, Divider, Stack, Typography } from '@mui/material'
+import { Button, Stack, Typography } from '@mui/material'
 import { SessionParams } from '@renderer/components/session_creator/types'
 import YogaPose from './YogaPose'
 

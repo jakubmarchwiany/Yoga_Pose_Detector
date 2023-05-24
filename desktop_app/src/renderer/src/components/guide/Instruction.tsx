@@ -1,13 +1,11 @@
-import { useState } from 'react'
+import { FormControl, MenuItem, Select, SelectChangeEvent, Stack } from '@mui/material'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
-import Typography from '@mui/material/Typography'
 import Modal from '@mui/material/Modal'
-import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Stack } from '@mui/material'
+import Typography from '@mui/material/Typography'
+import { useState } from 'react'
 import ModeSelector from './ModeSelector'
-import { AVAILABLE_POSES } from '../session_creator/types'
 import { INFO_POSES } from './data'
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2'
 
 const style = {
   position: 'absolute',

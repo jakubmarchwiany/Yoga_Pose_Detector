@@ -1,5 +1,4 @@
-import { Box, Divider, Stack, Typography } from '@mui/material'
-import React from 'react'
+import { Box, Stack, Typography } from '@mui/material'
 
 type Props = {
   name: string
